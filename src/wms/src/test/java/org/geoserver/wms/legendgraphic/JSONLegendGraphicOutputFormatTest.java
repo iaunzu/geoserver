@@ -443,6 +443,8 @@ public class JSONLegendGraphicOutputFormatTest extends BaseLegendTest<JSONLegend
                         .getJSONArray(JSONLegendGraphicBuilder.SYMBOLIZERS)
                         .getJSONObject(0)
                         .containsKey(JSONLegendGraphicBuilder.POINT));
+
+        assertTrue(getGraphicUrl(rules.getJSONObject(2)).startsWith("data:image/svg+xml;base64,"));
     }
 
     /**
@@ -490,6 +492,7 @@ public class JSONLegendGraphicOutputFormatTest extends BaseLegendTest<JSONLegend
                             .getJSONArray(JSONLegendGraphicBuilder.GRAPHICS)
                             .getJSONObject(0)
                             .get(JSONLegendGraphicBuilder.MARK));
+            assertTrue(getGraphicUrl(rule).startsWith("data:image/svg+xml;base64,"));
         }
     }
 
@@ -533,6 +536,7 @@ public class JSONLegendGraphicOutputFormatTest extends BaseLegendTest<JSONLegend
                             .getJSONArray(JSONLegendGraphicBuilder.GRAPHICS)
                             .getJSONObject(0)
                             .get(JSONLegendGraphicBuilder.MARK));
+            assertTrue(getGraphicUrl(rule).startsWith("data:image/svg+xml;base64,"));
         }
     }
 
@@ -619,6 +623,7 @@ public class JSONLegendGraphicOutputFormatTest extends BaseLegendTest<JSONLegend
                             .getJSONArray(JSONLegendGraphicBuilder.GRAPHICS)
                             .getJSONObject(0)
                             .get(JSONLegendGraphicBuilder.MARK));
+            assertTrue(getGraphicUrl(rule).startsWith("data:image/svg+xml;base64,"));
         }
     }
 
@@ -669,6 +674,7 @@ public class JSONLegendGraphicOutputFormatTest extends BaseLegendTest<JSONLegend
                             .getJSONArray(JSONLegendGraphicBuilder.GRAPHICS)
                             .getJSONObject(0)
                             .get(JSONLegendGraphicBuilder.MARK));
+            assertTrue(getGraphicUrl(rule).startsWith("data:image/svg+xml;base64,"));
         }
     }
 
@@ -991,6 +997,8 @@ public class JSONLegendGraphicOutputFormatTest extends BaseLegendTest<JSONLegend
         JSONObject pointSymb =
                 symbolizers.getJSONObject(0).getJSONObject(JSONLegendGraphicBuilder.POINT);
         assertNotNull(pointSymb);
+
+        assertTrue(getGraphicUrl(rules.getJSONObject(0)).startsWith("data:image/svg+xml;base64,"));
     }
 
     @Test
@@ -1034,6 +1042,7 @@ public class JSONLegendGraphicOutputFormatTest extends BaseLegendTest<JSONLegend
         assertEquals(
                 "http://local-test:8080/geoserver/kml/icon/Hospital?0.0.1=",
                 pointSymb.getString("url"));
+        assertTrue(getGraphicUrl(rules.getJSONObject(0)).startsWith("data:image/svg+xml;base64,"));
     }
 
     @Test
@@ -1302,6 +1311,7 @@ public class JSONLegendGraphicOutputFormatTest extends BaseLegendTest<JSONLegend
         assertEquals("6", pointSymb.get(JSONLegendGraphicBuilder.SIZE));
         assertEquals("[rotation * '-1']", pointSymb.get(JSONLegendGraphicBuilder.ROTATION));
         assertEquals("0.4", pointSymb.get(JSONLegendGraphicBuilder.OPACITY));
+        assertTrue(getGraphicUrl(rules.getJSONObject(0)).startsWith("data:image/svg+xml;base64,"));
     }
 
     @Test
@@ -1799,6 +1809,12 @@ public class JSONLegendGraphicOutputFormatTest extends BaseLegendTest<JSONLegend
         String filter = rules.getJSONObject(0).getString("filter");
         if (lang != null) assertEquals("[language() = '" + lang + "']", filter);
         else assertEquals("[language() = '']", filter);
+    }
+
+    private String getGraphicUrl(JSONObject rule) {
+        return rule.getJSONArray(JSONLegendGraphicBuilder.GRAPHICS)
+                .getJSONObject(0)
+                .getString(JSONLegendGraphicBuilder.EXTERNAL_GRAPHIC_URL);
     }
 
     /** @param result */

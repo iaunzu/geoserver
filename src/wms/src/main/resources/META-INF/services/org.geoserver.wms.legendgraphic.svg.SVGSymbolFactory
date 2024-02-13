@@ -1,0 +1,7 @@
+org.geoserver.wms.legendgraphic.svg.ttf.TTFSVGSymbolFactory
+org.geoserver.wms.legendgraphic.svg.standards.CircleSVGSymbolFactory
+org.geoserver.wms.legendgraphic.svg.standards.SquareSVGSymbolFactory
+org.geoserver.wms.legendgraphic.svg.standards.CrossSVGSymbolFactory
+org.geoserver.wms.legendgraphic.svg.standards.TriangleSVGSymbolFactory
+org.geoserver.wms.legendgraphic.svg.standards.XSVGSymbolFactory
+org.geoserver.wms.legendgraphic.svg.standards.StarSVGSymbolFactory

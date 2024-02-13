@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -20,6 +21,7 @@ import javax.swing.Icon;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.xmlgraphics.util.MimeConstants;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -31,6 +33,7 @@ import org.geoserver.wms.WMS;
 import org.geoserver.wms.icons.IconProperties;
 import org.geoserver.wms.icons.IconPropertyExtractor;
 import org.geoserver.wms.icons.MiniRule;
+import org.geoserver.wms.legendgraphic.svg.SVGSymbolizerBuilder;
 import org.geotools.api.feature.Feature;
 import org.geotools.api.feature.simple.SimpleFeature;
 import org.geotools.api.feature.type.FeatureType;
@@ -373,6 +376,10 @@ public class JSONLegendGraphicBuilder extends LegendGraphicBuilder {
                 }
                 if (!jSymbolizers.isEmpty()) {
                     jRule.element(SYMBOLIZERS, jSymbolizers);
+                    JSONArray graphics = processGraphics(symbolizers, feature);
+                    if (!graphics.isEmpty()) {
+                        jRule.element(GRAPHICS, graphics);
+                    }
                 }
                 jRules.add(jRule);
             }
@@ -880,6 +887,10 @@ public class JSONLegendGraphicBuilder extends LegendGraphicBuilder {
         }
         ret.element(FONTS, fonts);
         ret = processFill(ret, symbolizer.getFill());
+        JSONArray graphics = processGraphics(symbolizer, feature);
+        if (!graphics.isEmpty()) {
+            ret.element(GRAPHICS, graphics);
+        }
         if (symbolizer instanceof TextSymbolizer) {
             // handle font graphic
             TextSymbolizer tSymb = (TextSymbolizer) symbolizer;
@@ -922,5 +933,43 @@ public class JSONLegendGraphicBuilder extends LegendGraphicBuilder {
         }
         // TODO check for Graphic background
         return ret;
+    }
+
+    private static JSONArray processGraphics(List<Symbolizer> symbolizers, Feature feature) {
+        JSONArray jGraphics = new JSONArray();
+        SVGSymbolizerBuilder svgBuilder = new SVGSymbolizerBuilder(feature);
+        svgBuilder.addAll(symbolizers);
+        byte[] svg = svgBuilder.build();
+        if (ArrayUtils.isEmpty(svg)) {
+            return jGraphics;
+        }
+        JSONObject jGraphic = new JSONObject();
+        addSVGAsExternalGraphic(jGraphic, svg);
+        jGraphics.add(jGraphic);
+        return jGraphics;
+    }
+
+    private static JSONArray processGraphics(TextSymbolizer symbolizer, Feature feature) {
+        JSONArray jGraphics = new JSONArray();
+        SVGSymbolizerBuilder svgBuilder = new SVGSymbolizerBuilder(feature);
+        svgBuilder.add(symbolizer);
+        byte[] svg = svgBuilder.build();
+        if (ArrayUtils.isEmpty(svg)) {
+            return jGraphics;
+        }
+        JSONObject jGraphic = new JSONObject();
+        addSVGAsExternalGraphic(jGraphic, svg);
+        jGraphics.add(jGraphic);
+        return jGraphics;
+    }
+
+    private static void addSVGAsExternalGraphic(JSONObject jGraphic, byte[] svg) {
+        jGraphic.element(
+                EXTERNAL_GRAPHIC_URL,
+                "data:"
+                        + MimeConstants.MIME_SVG
+                        + ";base64,"
+                        + Base64.getEncoder().encodeToString(svg));
+        jGraphic.element(EXTERNAL_GRAPHIC_TYPE, MimeConstants.MIME_SVG);
     }
 }
